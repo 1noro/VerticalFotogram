@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">VerticalFotogram</string>
     <string name="cancel">Cancelar</string>
+    <string name="notImplementedYet">no implementado aún</string>
 
     <string name="textLevel1">Esencial</string>
     <string name="textLevel2">Básico</string>

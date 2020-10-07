@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/responder"
+        android:id="@+id/buttonAnswer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -18,7 +18,7 @@
         android:layout_marginBottom="16dp"
         android:contentDescription="@string/answerButtonDesc"
         android:onClick="responder"
-        android:src="@android:drawable/ic_menu_help"
+        android:src="@drawable/question2"
         app:backgroundTint="#C75450" />
 
 

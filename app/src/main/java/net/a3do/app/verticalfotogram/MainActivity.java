@@ -3,11 +3,16 @@ package net.a3do.app.verticalfotogram;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Objects;
 
@@ -21,14 +26,50 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.activity_main);
 
-        Button level1 = findViewById(R.id.level1);
-        level1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intentLevel = new Intent(getApplicationContext(), Level.class);
-                startActivity(intentLevel);
-            }
-        });
+        try {
+            JSONObject parameters = new JSONObject("{\"levelFileJSONId\" : " + R.raw.level1 + "}");
+            Button level1 = findViewById(R.id.buttonLevel1);
+            level1.setOnClickListener(new MyOnClickListener(parameters) {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        Intent intentLevel = new Intent(getApplicationContext(), Level.class);
+                        intentLevel.putExtra("levelItemJsonId", this.parameters.getInt("levelFileJSONId"));
+                        startActivity(intentLevel);
+                    } catch (JSONException e) {
+                        Log.d("##### EXCPETION","this.params.getInt(\"levelFileJSON\")");
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            Button level2 = findViewById(R.id.buttonLevel2);
+            level2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.notImplementedYet), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            Button level3 = findViewById(R.id.buttonLevel3);
+            level3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.notImplementedYet), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            Button level4 = findViewById(R.id.buttonLevel4);
+            level4.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.notImplementedYet), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (JSONException e) {
+            Log.d("##### EXCPETION", "jsonResponse.get || new JSONObject(...)");
+            e.printStackTrace();
+        }
     }
 
     @Override

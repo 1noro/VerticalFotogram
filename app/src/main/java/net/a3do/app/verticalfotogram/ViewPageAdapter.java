@@ -12,15 +12,9 @@ import java.util.Objects;
 
 class ViewPagerAdapter extends PagerAdapter {
 
-    // Context object
-    Context context;
-
-    // Array of images
-    int[] images;
-
-    // Layout Inflater
-    LayoutInflater mLayoutInflater;
-
+    Context context; // Context object
+    int[] images; // Array of images
+    LayoutInflater mLayoutInflater; // Layout Inflater
 
     // Viewpager Constructor
     public ViewPagerAdapter(Context context, int[] images) {
