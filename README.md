@@ -1,2 +1,2 @@
-# verticalfotogram
+# VerticalFotogram
 Film Quiz for Android.
