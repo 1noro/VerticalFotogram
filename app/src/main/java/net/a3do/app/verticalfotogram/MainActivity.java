@@ -27,13 +27,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         try {
-            JSONObject parameters = new JSONObject("{\"levelFileJSONId\" : " + R.raw.level1 + "}");
+            JSONObject parameters = new JSONObject("{\"levelId\" : 1, \"levelFileJSONId\" : " + R.raw.level1 + "}");
             Button level1 = findViewById(R.id.buttonLevel1);
             level1.setOnClickListener(new MyOnClickListener(parameters) {
                 @Override
                 public void onClick(View view) {
                     try {
-                        Intent intentLevel = new Intent(getApplicationContext(), Level.class);
+                        Intent intentLevel = new Intent(getApplicationContext(), LevelActivity.class);
                         intentLevel.putExtra("levelItemJsonId", this.parameters.getInt("levelFileJSONId"));
                         startActivity(intentLevel);
                     } catch (JSONException e) {
