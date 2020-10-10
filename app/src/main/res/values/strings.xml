@@ -17,5 +17,7 @@
     <string name="answerButtonDesc">answer FAB</string>
     <string name="answerTitle">Write the title</string>
     <string name="answerCheck">Check</string>
+    <string name="answerFail">Wrong answer</string>
+    <string name="answerOk">Correct answer</string>
 
 </resources>

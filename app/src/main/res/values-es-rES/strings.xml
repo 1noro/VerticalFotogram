@@ -18,5 +18,7 @@
     <string name="answerButtonDesc">responder FAB</string>
     <string name="answerTitle">Escribe el título</string>
     <string name="answerCheck">Comprobar</string>
+    <string name="answerFail">Respuesta incorrecta</string>
+    <string name="answerOk">Respuesta correcta</string>
 
 </resources>

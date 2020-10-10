@@ -2,7 +2,10 @@ package net.a3do.app.verticalfotogram;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.Toast;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -19,7 +22,8 @@ import java.nio.charset.StandardCharsets;
 
 public class GameUtils {
 
-    public static String readJsonFile(Context context, int id) throws Exception {
+    @NotNull
+    public static String readJsonFile(@NotNull Context context, int id) throws Exception {
         InputStream is = context.getResources().openRawResource(id);
         Writer writer = new StringWriter();
         char[] buffer = new char[1024];
@@ -32,18 +36,20 @@ public class GameUtils {
         } finally {
             is.close();
         }
-
         return writer.toString();
     }
 
-    public static boolean checkTitle(JSONArray titleArray, String titleToCheck) {
+    public static boolean checkTitle(@NotNull JSONArray titleArray, String titleToCheck) {
         boolean out = false;
-
+        titleToCheck = titleToCheck.toLowerCase().trim().replaceAll("[^a-zA-Z ]", "");
         try {
-            String realTitle = titleArray.getJSONObject(0).getString("value").toLowerCase().trim();
-            titleToCheck = titleToCheck.toLowerCase().trim();
-            if (realTitle.equals(titleToCheck)) {
-                out = true;
+            for (int i = 0; i < titleArray.length(); i++) {
+                String realTitle = titleArray.getJSONObject(i).getString("value").toLowerCase().trim().replaceAll("[^a-zA-Z ]", "");
+                Log.d("$$$COMPARATIVA$$$", "¿ " + titleToCheck + " == " + realTitle + " ?");
+                if (realTitle.equals(titleToCheck)) {
+                    out = true;
+                    break;
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -51,7 +57,7 @@ public class GameUtils {
         return out;
     }
 
-    public static String readLevelStatusFile(Context context, String fileDir) {
+    public static String readLevelStatusFile(@NotNull Context context, String fileDir) {
 
         String ret = "";
 
@@ -87,7 +93,7 @@ public class GameUtils {
         return ret;
     }
 
-    public static void writeEmptyLevelStatusFile(Context context, String fileDir) {
+    public static void writeEmptyLevelStatusFile(@NotNull Context context, String fileDir) {
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(fileDir, Context.MODE_PRIVATE));
             outputStreamWriter.write("[]");
@@ -98,9 +104,9 @@ public class GameUtils {
         }
     }
 
-    public static void writeToFile(String data,Context context) {
+    public static void writeToFile(@NotNull Context context, String fileDir, String data) {
         try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(fileDir, Context.MODE_PRIVATE));
             outputStreamWriter.write(data);
             outputStreamWriter.close();
         }
@@ -109,17 +115,26 @@ public class GameUtils {
         }
     }
 
-    public static boolean findIntInJSONArray(JSONArray jArray, int number) {
+    public static boolean findIntInJSONArray(@NotNull JSONArray jArray, int number) {
         boolean out = false;
         for (int i = 0; i < jArray.length(); i++) {
             try {
-                if (jArray.getInt(i) == number) out = true;
+                if (jArray.getInt(i) == number) {
+                    out = true;
+                    break;
+                }
             } catch (JSONException e) {
                 Log.d("Error:", "El JSONArray no contiene un Int en esta posición.");
                 e.printStackTrace();
             }
         }
         return out;
+    }
+
+    public static void showToastOnTop(Context context, String text) {
+        Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 40);
+        toast.show();
     }
 
 }

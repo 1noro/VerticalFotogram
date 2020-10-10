@@ -1,15 +1,11 @@
 package net.a3do.app.verticalfotogram;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.util.Log;
-import android.widget.Toast;
 
-import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,20 +13,19 @@ import org.json.JSONObject;
 public class Level {
 
     private Context context;
-    private int levelId;
-    private int levelItemJsonId;
     private JSONArray levelArray;
     private JSONArray levelStatusArray;
     private int[] frameList;
+    private String fileStatusDir;
+    private String[] lastFailedAnswersArray;
 
-    public Level(Context context, int levelId, int levelItemJsonId, String levelStatusJSON) {
+    public Level(Context context, int levelId, int levelItemJsonId) {
         this.context = context;
-        this.levelId = levelId;
-        this.levelItemJsonId = levelItemJsonId;
+        this.fileStatusDir = "levelStatus" + levelId + ".json";
 
         try {
             this.levelArray = new JSONArray(GameUtils.readJsonFile(this.context, levelItemJsonId));
-            this.levelStatusArray = new JSONArray(levelStatusJSON);
+            this.levelStatusArray = new JSONArray(GameUtils.readLevelStatusFile(context, this.fileStatusDir));
         } catch (Exception e) {
             Log.d("##### EXCPETION","readJsonFile || new JSONArray(data)");
             e.printStackTrace();
@@ -38,7 +33,9 @@ public class Level {
 
         assert this.levelArray != null;
         this.frameList = new int[this.levelArray.length()];
+        this.lastFailedAnswersArray = new String[this.levelArray.length()];
         for (int i = 0; i < this.frameList.length; i++) {
+            this.lastFailedAnswersArray[i] = "";
             try {
                 this.frameList[i] = context.getResources().getIdentifier(this.levelArray.getJSONObject(i).getString("frame"), "drawable", context.getPackageName());
             } catch (JSONException e) {
@@ -52,16 +49,14 @@ public class Level {
         return frameList;
     }
 
-    public boolean checkTitle(ViewPager mViewPager, String titleToCheck) {
+    public boolean checkTitle(@NotNull ViewPager mViewPager, String titleToCheck) {
         boolean out = false;
         try {
             if (GameUtils.checkTitle(levelArray.getJSONObject(mViewPager.getCurrentItem()).getJSONArray("title"), titleToCheck)) {
-//                Toast.makeText(context, "CORRECTO", Toast.LENGTH_SHORT).show();
                 levelStatusArray.put(mViewPager.getCurrentItem());
+                GameUtils.writeToFile(context, this.fileStatusDir, levelStatusArray.toString());
                 out = true;
-            } /*else {
-                Toast.makeText(context, "FALLO", Toast.LENGTH_SHORT).show();
-            }*/
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -82,6 +77,7 @@ public class Level {
                 JSONObject frameTitleObject = frameTitles.getJSONObject(0);
                 if (frameTitleObject.getString("lang").equals(langId)) {
                     out = frameTitleObject.getString("value");
+                    break;
                 }
             }
             if (out.equals("Null.")) out = frameTitles.getJSONObject(0).getString("value");
@@ -89,6 +85,14 @@ public class Level {
             e.printStackTrace();
         }
         return out;
+    }
+
+    public void setLastFailedAnswer(int frameId, String failedAnswer) {
+        this.lastFailedAnswersArray[frameId] = failedAnswer;
+    }
+
+    public String getLastFailedAnswer(int frameId) {
+        return this.lastFailedAnswersArray[frameId];
     }
 
 }

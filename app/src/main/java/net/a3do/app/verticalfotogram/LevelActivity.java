@@ -4,13 +4,18 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,30 +35,29 @@ public class LevelActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        // Quitamos la barra del titulo
+        quitarBarraTitulo();
+
+        // Obtenemos la información del nivel desde el MainActivity
+        Bundle bundle = getIntent().getExtras();
+        assert bundle != null;
+        levelObj = new Level(this, bundle.getInt("levelId", 0), bundle.getInt("levelItemJsonId", 0));
+
+        creamosElViewPager();
+        cambiarColorFAB();
+    }
+
+    public ViewPager getmViewPager() {
+        return mViewPager;
+    }
+
+    public Level getLevelObj() {
+        return levelObj;
+    }
+
+    public void quitarBarraTitulo() {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.activity_level);
-
-        Bundle bundle = getIntent().getExtras();
-        assert bundle != null;
-
-        levelObj = new Level(this, bundle.getInt("levelId", 0), bundle.getInt("levelItemJsonId", 0), "[]");
-
-        mViewPager = findViewById(R.id.viewPagerMain);
-        ViewPagerAdapter mViewPagerAdapter = new ViewPagerAdapter(LevelActivity.this, levelObj.getFrameList());
-        mViewPager.setAdapter(mViewPagerAdapter);
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            public void onPageScrollStateChanged(int state) {}
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
-            public void onPageSelected(int position) {
-                // Check if this is the page you want.
-                boolean answered = levelObj.checkFrameAnswered(mViewPager.getCurrentItem());
-                if (answered) setFABAnswered();
-                else setFABNotAnswered();
-            }
-        });
-
     }
 
     public void setFABAnswered() {
@@ -68,14 +72,54 @@ public class LevelActivity extends AppCompatActivity {
         buttonAnswer.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red)));
     }
 
-    public void responder(View view) {
+    public void cambiarColorFAB() {
+        boolean answered = levelObj.checkFrameAnswered(mViewPager.getCurrentItem());
+        if (answered) setFABAnswered();
+        else setFABNotAnswered();
+    }
+
+    public void creamosElViewPager() {
+        mViewPager = findViewById(R.id.viewPagerMain);
+        ViewPagerAdapter mViewPagerAdapter = new ViewPagerAdapter(LevelActivity.this, levelObj.getFrameList());
+        mViewPager.setAdapter(mViewPagerAdapter);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+            public void onPageSelected(int position) {
+                cambiarColorFAB();
+            }
+        });
+    }
+
+    public TextView generateAnswerDialogTitle() {
+        TextView title = new TextView(this);
+        title.setText(getResources().getString(R.string.answerTitle));
+//        title.setBackgroundColor(Color.DKGRAY);
+        title.setPadding(10, 20, 10, 10);
+        title.setGravity(Gravity.CENTER);
+        title.setTextColor(Color.BLACK);
+        title.setTextSize(20);
+        return title;
+    }
+
+    public void answerFAB(View view) {
         boolean answered = levelObj.checkFrameAnswered(mViewPager.getCurrentItem());
         if (!answered) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(getResources().getString(R.string.answerTitle) + " - " + mViewPager.getCurrentItem());
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder.setCustomTitle(generateAnswerDialogTitle());
+
+            // input container for margins
+            FrameLayout container = new FrameLayout(this);
+            FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.leftMargin = 35;
+            params.rightMargin = 35;
 
             // Set up the input
             final EditText input = new EditText(this);
+            input.setText(levelObj.getLastFailedAnswer(mViewPager.getCurrentItem()));
+            input.setGravity(Gravity.CENTER);
+
             // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
             input.setInputType(InputType.TYPE_CLASS_TEXT);
             input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -91,7 +135,10 @@ public class LevelActivity extends AppCompatActivity {
                 }
             });
 
-            builder.setView(input);
+            input.setLayoutParams(params);
+            container.addView(input);
+
+            builder.setView(container);
 
             // Set up the buttons
             builder.setPositiveButton(getResources().getString(R.string.answerCheck), new DialogInterface.OnClickListener() {
@@ -99,22 +146,20 @@ public class LevelActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     String titleToCheck = input.getText().toString();
                     boolean answered = levelObj.checkTitle(mViewPager, titleToCheck);
-                    if (answered) setFABAnswered();
-                }
-            });
-            builder.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
+                    if (answered) {
+                        setFABAnswered();
+                        GameUtils.showToastOnTop(LevelActivity.this, getResources().getString(R.string.answerOk));
+                    } else {
+                        levelObj.setLastFailedAnswer(mViewPager.getCurrentItem(), titleToCheck);
+                        GameUtils.showToastOnTop(LevelActivity.this, getResources().getString(R.string.answerFail));
+                    }
                 }
             });
 
             builder.show();
             input.requestFocus();
         } else {
-            Toast answeredToast = Toast.makeText(this, levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), "en"), Toast.LENGTH_SHORT);
-            answeredToast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 40);
-            answeredToast.show();
+            GameUtils.showToastOnTop(this, levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), "en"));
         }
     }
 

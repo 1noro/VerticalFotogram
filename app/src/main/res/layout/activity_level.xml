@@ -17,7 +17,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:contentDescription="@string/answerButtonDesc"
-        android:onClick="responder"
+        android:onClick="answerFAB"
         android:src="@drawable/question2"
         app:backgroundTint="@color/red" />
 
