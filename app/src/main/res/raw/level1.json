@@ -3,10 +3,10 @@
     "frame" : "frame1",
     "lang" : "de",
     "title" : [
-      {"lang" : "en", "value" : "The Cabinet of Dr. Caligari"},
       {"lang" : "en", "value" : "The Cabinet of Droctor Caligari"},
-      {"lang" : "es", "value" : "El gabinete del Dr. Caligari"},
+      {"lang" : "en", "value" : "The Cabinet of Dr. Caligari"},
       {"lang" : "es", "value" : "El gabinete del Doctor Caligari"},
+      {"lang" : "es", "value" : "El gabinete del Dr. Caligari"},
       {"lang" : "de", "value" : "Das Kabinett des Dr. Caligari"}
     ]
   },

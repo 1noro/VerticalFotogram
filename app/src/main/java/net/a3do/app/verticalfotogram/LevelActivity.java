@@ -7,10 +7,13 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -18,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -29,6 +33,7 @@ public class LevelActivity extends AppCompatActivity {
 
     Level levelObj;
     ViewPager mViewPager;
+    TextView titleAnswered;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +45,11 @@ public class LevelActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
         levelObj = new Level(this, bundle.getInt("levelId", 0), bundle.getInt("levelItemJsonId", 0));
+
+        titleAnswered = (TextView) findViewById(R.id.titleAnswered);
+        titleAnswered.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+        titleAnswered.setSelected(true);
+        titleAnswered.setSingleLine(true);
 
         generateViewPager();
         changeFABIfFrameIsAnswered();
@@ -53,20 +63,25 @@ public class LevelActivity extends AppCompatActivity {
 
     public void setFABAnswered() {
         FloatingActionButton buttonAnswer = findViewById(R.id.buttonAnswer);
-        buttonAnswer.setImageResource(R.drawable.check2);
+        buttonAnswer.setImageResource(R.drawable.check3);
         buttonAnswer.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green)));
     }
 
     public void setFABNotAnswered() {
         FloatingActionButton buttonAnswer = findViewById(R.id.buttonAnswer);
-        buttonAnswer.setImageResource(R.drawable.question2);
+        buttonAnswer.setImageResource(R.drawable.question3);
         buttonAnswer.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red)));
     }
 
     public void changeFABIfFrameIsAnswered() {
         boolean isFrameAnswered = levelObj.checkFrameAnswered(mViewPager.getCurrentItem());
-        if (isFrameAnswered) setFABAnswered();
-        else setFABNotAnswered();
+        if (isFrameAnswered) {
+            setFABAnswered();
+            titleAnswered.setText(levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), Locale.getDefault().getLanguage()));
+        } else {
+            setFABNotAnswered();
+            titleAnswered.setText(getResources().getString(R.string.noAnswer));
+        }
     }
 
     public void generateViewPager() {
@@ -135,22 +150,25 @@ public class LevelActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     String titleToCheck = input.getText().toString();
-                    boolean answered = levelObj.checkTitle(mViewPager, titleToCheck);
-                    if (answered) {
+                    boolean isFrameAnswered = levelObj.checkTitle(mViewPager, titleToCheck);
+                    if (isFrameAnswered) {
                         setFABAnswered();
-                        GameUtils.showToastOnTop(LevelActivity.this, getResources().getString(R.string.answerOk));
+                        titleAnswered.setText(levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), Locale.getDefault().getLanguage()));
+                        // GameUtils.showToastOnTop(LevelActivity.this, getResources().getString(R.string.answerOk));
                     } else {
                         levelObj.setLastFailedAnswer(mViewPager.getCurrentItem(), titleToCheck);
-                        GameUtils.showToastOnTop(LevelActivity.this, getResources().getString(R.string.answerFail));
+                        titleAnswered.setText(getResources().getString(R.string.wrongAnswer));
+                        // GameUtils.showToastOnTop(LevelActivity.this, getResources().getString(R.string.answerFail));
                     }
+
                 }
             });
 
             builder.show();
             input.requestFocus();
-        } else {
+        } /*else {
             GameUtils.showToastOnTop(this, levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), Locale.getDefault().getLanguage()));
-        }
+        }*/
     }
 
 }

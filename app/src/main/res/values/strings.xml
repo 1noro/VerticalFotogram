@@ -19,5 +19,7 @@
     <string name="answerCheck">Check</string>
     <string name="answerFail">Wrong answer</string>
     <string name="answerOk">Correct answer</string>
+    <string name="noAnswer"></string>
+    <string name="wrongAnswer">Wrong answer</string>
 
 </resources>
