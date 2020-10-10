@@ -40,8 +40,8 @@ public class GameUtils {
         boolean out = false;
 
         try {
-            String realTitle = titleArray.getJSONObject(0).getString("value").toLowerCase();
-            titleToCheck = titleToCheck.toLowerCase();
+            String realTitle = titleArray.getJSONObject(0).getString("value").toLowerCase().trim();
+            titleToCheck = titleToCheck.toLowerCase().trim();
             if (realTitle.equals(titleToCheck)) {
                 out = true;
             }
@@ -107,6 +107,19 @@ public class GameUtils {
         catch (IOException e) {
             Log.e("Exception", "File write failed: " + e.toString());
         }
+    }
+
+    public static boolean findIntInJSONArray(JSONArray jArray, int number) {
+        boolean out = false;
+        for (int i = 0; i < jArray.length(); i++) {
+            try {
+                if (jArray.getInt(i) == number) out = true;
+            } catch (JSONException e) {
+                Log.d("Error:", "El JSONArray no contiene un Int en esta posición.");
+                e.printStackTrace();
+            }
+        }
+        return out;
     }
 
 }

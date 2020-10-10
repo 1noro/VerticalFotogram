@@ -19,7 +19,7 @@
         android:contentDescription="@string/answerButtonDesc"
         android:onClick="responder"
         android:src="@drawable/question2"
-        app:backgroundTint="#C75450" />
+        app:backgroundTint="@color/red" />
 
 
     <androidx.viewpager.widget.ViewPager
