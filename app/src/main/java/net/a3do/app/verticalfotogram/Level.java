@@ -74,7 +74,8 @@ public class Level {
         try {
             JSONArray frameTitles = levelArray.getJSONObject(frameId).getJSONArray("title");
             for (int i = 0; i < frameTitles.length(); i++) {
-                JSONObject frameTitleObject = frameTitles.getJSONObject(0);
+                JSONObject frameTitleObject = frameTitles.getJSONObject(i);
+//                Log.d("$$$COMPARATIVA$$$", "¿ " + frameTitleObject.getString("lang") + " == " + langId + " ?");
                 if (frameTitleObject.getString("lang").equals(langId)) {
                     out = frameTitleObject.getString("value");
                     break;

@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -16,7 +15,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -24,6 +22,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class LevelActivity extends AppCompatActivity {
@@ -35,26 +34,18 @@ public class LevelActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        quitarBarraTitulo();
+        hideTitleBar();
 
         // Obtenemos la información del nivel desde el MainActivity
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
         levelObj = new Level(this, bundle.getInt("levelId", 0), bundle.getInt("levelItemJsonId", 0));
 
-        creamosElViewPager();
-        cambiarColorFAB();
+        generateViewPager();
+        changeFABIfFrameIsAnswered();
     }
 
-    public ViewPager getmViewPager() {
-        return mViewPager;
-    }
-
-    public Level getLevelObj() {
-        return levelObj;
-    }
-
-    public void quitarBarraTitulo() {
+    public void hideTitleBar() {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.activity_level);
@@ -72,13 +63,13 @@ public class LevelActivity extends AppCompatActivity {
         buttonAnswer.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red)));
     }
 
-    public void cambiarColorFAB() {
-        boolean answered = levelObj.checkFrameAnswered(mViewPager.getCurrentItem());
-        if (answered) setFABAnswered();
+    public void changeFABIfFrameIsAnswered() {
+        boolean isFrameAnswered = levelObj.checkFrameAnswered(mViewPager.getCurrentItem());
+        if (isFrameAnswered) setFABAnswered();
         else setFABNotAnswered();
     }
 
-    public void creamosElViewPager() {
+    public void generateViewPager() {
         mViewPager = findViewById(R.id.viewPagerMain);
         ViewPagerAdapter mViewPagerAdapter = new ViewPagerAdapter(LevelActivity.this, levelObj.getFrameList());
         mViewPager.setAdapter(mViewPagerAdapter);
@@ -86,7 +77,7 @@ public class LevelActivity extends AppCompatActivity {
             public void onPageScrollStateChanged(int state) {}
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
             public void onPageSelected(int position) {
-                cambiarColorFAB();
+                changeFABIfFrameIsAnswered();
             }
         });
     }
@@ -103,8 +94,8 @@ public class LevelActivity extends AppCompatActivity {
     }
 
     public void answerFAB(View view) {
-        boolean answered = levelObj.checkFrameAnswered(mViewPager.getCurrentItem());
-        if (!answered) {
+        boolean isFrameAnswered = levelObj.checkFrameAnswered(mViewPager.getCurrentItem());
+        if (!isFrameAnswered) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             builder.setCustomTitle(generateAnswerDialogTitle());
@@ -120,7 +111,6 @@ public class LevelActivity extends AppCompatActivity {
             input.setText(levelObj.getLastFailedAnswer(mViewPager.getCurrentItem()));
             input.setGravity(Gravity.CENTER);
 
-            // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
             input.setInputType(InputType.TYPE_CLASS_TEXT);
             input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
@@ -159,7 +149,7 @@ public class LevelActivity extends AppCompatActivity {
             builder.show();
             input.requestFocus();
         } else {
-            GameUtils.showToastOnTop(this, levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), "en"));
+            GameUtils.showToastOnTop(this, levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), Locale.getDefault().getLanguage()));
         }
     }
 
