@@ -3,8 +3,10 @@ package net.a3do.app.verticalfotogram;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -35,7 +37,18 @@ public class LevelActivity extends AppCompatActivity {
         assert bundle != null;
         levelObj = new Level(this, bundle.getInt("levelId", 0), bundle.getInt("levelItemJsonId", 0));
 
+        final FloatingActionButton buttonAnswer = findViewById(R.id.buttonAnswer);
         titleAnswerBox = findViewById(R.id.titleAnswerBox);
+        titleAnswerBox.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    buttonAnswer.performClick();
+                    return true;
+                }
+                return false;
+            }
+        });
 
         titleAnswered = findViewById(R.id.titleAnswered);
         titleAnswered.setEllipsize(TextUtils.TruncateAt.MARQUEE);

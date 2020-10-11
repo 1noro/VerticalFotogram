@@ -21,5 +21,6 @@
     <string name="answerOk">Correct answer</string>
     <string name="noAnswer">Write the title</string>
     <string name="wrongAnswer">Wrong answer</string>
+    <string name="iconDescription">App Icon</string>
 
 </resources>
