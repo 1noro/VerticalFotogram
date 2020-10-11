@@ -7,4 +7,5 @@
     <color name="red">#C75450</color>
     <color name="lightBackground">#FFFFFFFF</color>
     <color name="lightBackgroundTransparent">#D9FFFFFF</color>
+    <color name="textColor">#000000</color>
 </resources>

@@ -46,7 +46,8 @@
         android:textSize="25sp"
         android:hint="@string/noAnswer"
         android:singleLine="true"
-        android:autofillHints="title"
+        android:importantForAutofill="no"
+        android:textColor="@color/textColor"
         android:inputType="text" />
 
     <TextView

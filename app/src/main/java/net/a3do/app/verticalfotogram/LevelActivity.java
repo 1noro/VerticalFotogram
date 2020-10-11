@@ -72,7 +72,13 @@ public class LevelActivity extends AppCompatActivity {
             titleAnswered.setVisibility(View.VISIBLE);
             titleAnswerBox.setVisibility(View.GONE);
         } else {
-            titleAnswerBox.setText(levelObj.getLastFailedAnswer(mViewPager.getCurrentItem()));
+            String lastFailedAnswer = levelObj.getLastFailedAnswer(mViewPager.getCurrentItem());
+            titleAnswerBox.setText(lastFailedAnswer);
+            if (lastFailedAnswer.equals("")) {
+                titleAnswerBox.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.textColor));
+            } else {
+                titleAnswerBox.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.red));
+            }
             setFABNotAnswered();
             titleAnswerBox.setVisibility(View.VISIBLE);
             titleAnswered.setVisibility(View.GONE);
@@ -104,6 +110,7 @@ public class LevelActivity extends AppCompatActivity {
                 titleAnswerBox.setVisibility(View.GONE);
             } else {
                 levelObj.setLastFailedAnswer(mViewPager.getCurrentItem(), titleToCheck);
+                titleAnswerBox.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.red));
             }
         }
     }
