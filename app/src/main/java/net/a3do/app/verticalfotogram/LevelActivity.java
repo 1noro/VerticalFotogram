@@ -33,6 +33,7 @@ public class LevelActivity extends AppCompatActivity {
 
     Level levelObj;
     ViewPager mViewPager;
+    EditText titleAnswerBox;
     TextView titleAnswered;
 
     @Override
@@ -45,6 +46,8 @@ public class LevelActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
         levelObj = new Level(this, bundle.getInt("levelId", 0), bundle.getInt("levelItemJsonId", 0));
+
+        titleAnswerBox = (EditText) findViewById(R.id.titleAnswerBox);
 
         titleAnswered = (TextView) findViewById(R.id.titleAnswered);
         titleAnswered.setEllipsize(TextUtils.TruncateAt.MARQUEE);
@@ -76,11 +79,16 @@ public class LevelActivity extends AppCompatActivity {
     public void changeFABIfFrameIsAnswered() {
         boolean isFrameAnswered = levelObj.checkFrameAnswered(mViewPager.getCurrentItem());
         if (isFrameAnswered) {
-            setFABAnswered();
             titleAnswered.setText(levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), Locale.getDefault().getLanguage()));
+            setFABAnswered();
+            titleAnswered.setVisibility(View.VISIBLE);
+            titleAnswerBox.setVisibility(View.GONE);
         } else {
+//            titleAnswered.setText(getResources().getString(R.string.noAnswer));
+            titleAnswerBox.setText(levelObj.getLastFailedAnswer(mViewPager.getCurrentItem()));
             setFABNotAnswered();
-            titleAnswered.setText(getResources().getString(R.string.noAnswer));
+            titleAnswerBox.setVisibility(View.VISIBLE);
+            titleAnswered.setVisibility(View.GONE);
         }
     }
 
@@ -111,64 +119,72 @@ public class LevelActivity extends AppCompatActivity {
     public void answerFAB(View view) {
         boolean isFrameAnswered = levelObj.checkFrameAnswered(mViewPager.getCurrentItem());
         if (!isFrameAnswered) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            String titleToCheck = titleAnswerBox.getText().toString();
+            boolean isThereAMatch = levelObj.checkTitle(mViewPager, titleToCheck);
+            if (isThereAMatch) {
+                titleAnswered.setText(levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), Locale.getDefault().getLanguage()));
+                setFABAnswered();
+                titleAnswered.setVisibility(View.VISIBLE);
+                titleAnswerBox.setVisibility(View.GONE);
+            } else {
+                levelObj.setLastFailedAnswer(mViewPager.getCurrentItem(), titleToCheck);
+//                titleAnswered.setText(getResources().getString(R.string.wrongAnswer));
+            }
 
-            builder.setCustomTitle(generateAnswerDialogTitle());
-
-            // input container for margins
-            FrameLayout container = new FrameLayout(this);
-            FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.leftMargin = 35;
-            params.rightMargin = 35;
-
-            // Set up the input
-            final EditText input = new EditText(this);
-            input.setText(levelObj.getLastFailedAnswer(mViewPager.getCurrentItem()));
-            input.setGravity(Gravity.CENTER);
-
-            input.setInputType(InputType.TYPE_CLASS_TEXT);
-            input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    input.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            InputMethodManager inputMethodManager = (InputMethodManager) LevelActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
-                            inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-                        }
-                    });
-                }
-            });
-
-            input.setLayoutParams(params);
-            container.addView(input);
-
-            builder.setView(container);
-
-            // Set up the buttons
-            builder.setPositiveButton(getResources().getString(R.string.answerCheck), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String titleToCheck = input.getText().toString();
-                    boolean isFrameAnswered = levelObj.checkTitle(mViewPager, titleToCheck);
-                    if (isFrameAnswered) {
-                        setFABAnswered();
-                        titleAnswered.setText(levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), Locale.getDefault().getLanguage()));
-                        // GameUtils.showToastOnTop(LevelActivity.this, getResources().getString(R.string.answerOk));
-                    } else {
-                        levelObj.setLastFailedAnswer(mViewPager.getCurrentItem(), titleToCheck);
-                        titleAnswered.setText(getResources().getString(R.string.wrongAnswer));
-                        // GameUtils.showToastOnTop(LevelActivity.this, getResources().getString(R.string.answerFail));
-                    }
-
-                }
-            });
-
-            builder.show();
-            input.requestFocus();
-        } /*else {
-            GameUtils.showToastOnTop(this, levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), Locale.getDefault().getLanguage()));
-        }*/
+//            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//
+//            builder.setCustomTitle(generateAnswerDialogTitle());
+//
+//            // input container for margins
+//            FrameLayout container = new FrameLayout(this);
+//            FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//            params.leftMargin = 35;
+//            params.rightMargin = 35;
+//
+//            // Set up the input
+//            final EditText input = new EditText(this);
+//            input.setText(levelObj.getLastFailedAnswer(mViewPager.getCurrentItem()));
+//            input.setGravity(Gravity.CENTER);
+//
+//            input.setInputType(InputType.TYPE_CLASS_TEXT);
+//            input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//                @Override
+//                public void onFocusChange(View v, boolean hasFocus) {
+//                    input.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            InputMethodManager inputMethodManager = (InputMethodManager) LevelActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+//                            inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+//                        }
+//                    });
+//                }
+//            });
+//
+//            input.setLayoutParams(params);
+//            container.addView(input);
+//
+//            builder.setView(container);
+//
+//            // Set up the buttons
+//            builder.setPositiveButton(getResources().getString(R.string.answerCheck), new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    String titleToCheck = input.getText().toString();
+//                    boolean isFrameAnswered = levelObj.checkTitle(mViewPager, titleToCheck);
+//                    if (isFrameAnswered) {
+//                        setFABAnswered();
+////                        titleAnswered.setText(levelObj.getFrameTitleByLang(mViewPager.getCurrentItem(), Locale.getDefault().getLanguage()));
+//                    } else {
+//                        levelObj.setLastFailedAnswer(mViewPager.getCurrentItem(), titleToCheck);
+////                        titleAnswered.setText(getResources().getString(R.string.wrongAnswer));
+//                    }
+//
+//                }
+//            });
+//
+//            builder.show();
+//            input.requestFocus();
+        }
     }
 
 }

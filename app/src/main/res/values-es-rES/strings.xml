@@ -20,7 +20,7 @@
     <string name="answerCheck">Comprobar</string>
     <string name="answerFail">Respuesta incorrecta</string>
     <string name="answerOk">Respuesta correcta</string>
-    <string name="noAnswer"></string>
+    <string name="noAnswer">Escribe el título</string>
     <string name="wrongAnswer">Respuesta incorrecta</string>
 
 </resources>
